@@ -4,6 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+df = pd.read_csv("Dashboard/hour.csv")
+
+
 # Konfigurasi halaman
 st.set_page_config(page_title="Analisis Data Penyewaan Sepeda", layout="wide")
 
