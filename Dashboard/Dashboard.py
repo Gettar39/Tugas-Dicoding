@@ -24,10 +24,12 @@ if uploaded_file:
 
     # Menampilkan informasi dataset
     st.subheader("📌 Informasi Dataset")
-    buffer = []
-    data_bicyle.info(buf=buffer)
-    info_str = "\n".join(buffer)
-    st.text(info_str)
+    import io
+
+    buffer = io.StringIO()  # Create an in-memory text buffer
+    data_bicyle.info(buf=buffer)  # Write info output to the buffer
+    info_str = buffer.getvalue()  # Extract text from buffer
+    st.text(info_str)  # Display in Streamlit
 
     # Menampilkan Statistik Deskriptif
     st.subheader("📊 Statistik Deskriptif")
