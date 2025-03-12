@@ -1,133 +1,147 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import gdown
 
-# Konfigurasi halaman
-st.set_page_config(page_title="Analisis Data Penyewaan Sepeda", layout="wide")
+# Judul Aplikasi
+st.title("Analisis Data Penyewaan Sepeda")
 
-# Header
-st.title("📊 Analisis Data Penyewaan Sepeda")
+# Menampilkan Deskripsi Aplikasi
+st.write("""
+Aplikasi ini menganalisis data penyewaan sepeda berdasarkan berbagai faktor seperti cuaca, suhu, dan hari kerja.
+""")
 
-# Sidebar untuk Upload File
-st.sidebar.header("Unggah Dataset")
-uploaded_file = st.sidebar.file_uploader("Pilih file CSV", type=["csv"])
+# Gathering Data
+url = "https://drive.google.com/file/d/1JWDPQz_8Ndu3MD1owAKL_lZ8Fxf8TIBi/view"
+output = 'data.csv'
+gdown.download(url=url, output=output, quiet=False, fuzzy=True)
+data_bicyle = pd.read_csv(output)
 
-if uploaded_file:
-    # Membaca dataset
-    data_bicyle = pd.read_csv(uploaded_file)
-    
-    # Menampilkan preview data
-    st.subheader("📋 Cuplikan Dataset")
-    st.write(data_bicyle.head())
+# Menampilkan Data
+st.subheader("Data Penyewaan Sepeda")
+st.write(data_bicyle.head())
 
-    # Menampilkan informasi dataset
-    st.subheader("📌 Informasi Dataset")
-    import io
+# Data Wrangling
+st.subheader("Data Wrangling")
+st.write("Informasi Dataset:")
+st.write(data_bicyle.info())
 
-    buffer = io.StringIO()  # Create an in-memory text buffer
-    data_bicyle.info(buf=buffer)  # Write info output to the buffer
-    info_str = buffer.getvalue()  # Extract text from buffer
-    st.text(info_str)  # Display in Streamlit
+st.write("Jumlah Nilai yang Hilang:")
+st.write(data_bicyle.isna().sum())
 
-    # Menampilkan Statistik Deskriptif
-    st.subheader("📊 Statistik Deskriptif")
-    st.write(data_bicyle.describe())
+st.write("Jumlah Duplikasi:")
+st.write(data_bicyle.duplicated().sum())
 
-    # Visualisasi Data
-    st.subheader("📈 Visualisasi Data")
+# Exploratory Data Analysis (EDA)
+st.subheader("Exploratory Data Analysis (EDA)")
 
-    # Pilihan visualisasi
-    vis_option = st.selectbox("Pilih Visualisasi", 
-        ["Jumlah Penyewa Berdasarkan Cuaca", 
-         "Jumlah Penyewa Berdasarkan Suhu", 
-         "Jumlah Penyewa Berdasarkan Jam"])
+# Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca
+st.write("### Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca")
+data_bicyle['Weather_category'] = pd.cut(data_bicyle['weathersit'], bins=4, labels=['Clear','Mist','Light Snow','Heavy Rain'])
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(x='Weather_category', y='cnt', data=data_bicyle, errorbar=None, palette='viridis', ax=ax)
+ax.set_title('Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca')
+ax.set_xlabel('Kondisi Cuaca')
+ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
+st.pyplot(fig)
 
-    if vis_option == "Jumlah Penyewa Berdasarkan Cuaca":
-        data_bicyle["Weather_category"] = pd.cut(
-            data_bicyle["weathersit"], bins=4, labels=["Clear", "Mist", "Light Snow", "Heavy Rain"]
-        )
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(x="Weather_category", y="cnt", data=data_bicyle, palette="viridis", ax=ax)
-        ax.set_title("Jumlah Penyewa Sepeda Berdasarkan Kondisi Cuaca")
-        ax.set_xlabel("Kondisi Cuaca")
-        ax.set_ylabel("Rata-rata Jumlah Penyewa Sepeda")
-        st.pyplot(fig)
+# Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Suhu
+st.write("### Jumlah Sepeda yang Disewa Berdasarkan Suhu")
+data_bicyle['temp_category'] = pd.cut(data_bicyle['temp'], bins=5, labels=['Sangat Dingin', 'Dingin', 'Sedang', 'Hangat', 'Panas'])
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(x='temp_category', y='cnt', data=data_bicyle, errorbar=None, palette='coolwarm', ax=ax)
+ax.set_title('Jumlah Sepeda yang Disewa Berdasarkan Suhu')
+ax.set_xlabel('Kategori Suhu')
+ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
+st.pyplot(fig)
 
-    elif vis_option == "Jumlah Penyewa Berdasarkan Suhu":
-        data_bicyle["temp_category"] = pd.cut(
-            data_bicyle["temp"], bins=5, labels=["Sangat Dingin", "Dingin", "Sedang", "Hangat", "Panas"]
-        )
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(x="temp_category", y="cnt", data=data_bicyle, palette="coolwarm", ax=ax)
-        ax.set_title("Jumlah Penyewa Sepeda Berdasarkan Suhu")
-        ax.set_xlabel("Kategori Suhu")
-        ax.set_ylabel("Rata-rata Jumlah Penyewa Sepeda")
-        st.pyplot(fig)
+# Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja
+st.write("### Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja")
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(x='workingday', y='cnt', data=data_bicyle, errorbar=None, palette='gist_ncar', ax=ax)
+ax.set_title('Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja')
+ax.set_xlabel('Hari Kerja (0: Bukan Hari Kerja, 1: Hari Kerja)')
+ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
+st.pyplot(fig)
 
-    elif vis_option == "Jumlah Penyewa Berdasarkan Jam":
-        avg_cnt_per_hour = data_bicyle.groupby("hr")["cnt"].mean().reset_index()
-        fig, ax = plt.subplots(figsize=(12, 6))
-        sns.lineplot(x="hr", y="cnt", data=avg_cnt_per_hour, marker="o", ax=ax)
-        ax.set_title("Jumlah Penyewa Sepeda Berdasarkan Jam")
-        ax.set_xlabel("Jam")
-        ax.set_ylabel("Rata-rata Penyewa")
-        st.pyplot(fig)
+# Kategorisasi Jam Berdasarkan Pola Penyewaan Sepeda
+st.write("### Kategorisasi Jam Berdasarkan Pola Penyewaan Sepeda")
+avg_cnt_per_hour = data_bicyle.groupby('hr')['cnt'].mean().reset_index()
+percentile_25 = avg_cnt_per_hour['cnt'].quantile(0.25)
+percentile_75 = avg_cnt_per_hour['cnt'].quantile(0.75)
 
-    # Analisis RFM
-    st.subheader("📌 Analisis RFM (Recency, Frequency, Monetary)")
-    data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
+def categorize_hour(cnt):
+    if cnt >= percentile_75:
+        return 'Jam Sibuk'
+    elif cnt <= percentile_25:
+        return 'Jam Sepi'
+    else:
+        return 'Jam Menengah'
 
-    rfm_df = data_bicyle.groupby('dteday').agg({
-        'instant': 'count',  # Frequency (jumlah hari dengan penyewaan)
-        'cnt': 'sum'  # Monetary (total penyewaan sepeda)
-    }).reset_index()
+avg_cnt_per_hour['kategori_jam'] = avg_cnt_per_hour['cnt'].apply(categorize_hour)
 
-    rfm_df['recency'] = (data_bicyle['dteday'].max() - rfm_df['dteday']).dt.days
-    rfm_df.rename(columns={'instant': 'frequency', 'cnt': 'monetary'}, inplace=True)
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(x='hr', y='cnt', hue='kategori_jam', data=avg_cnt_per_hour, palette='viridis', ax=ax)
+ax.set_title('Kategorisasi Jam Berdasarkan Pola Penyewaan Sepeda')
+ax.set_xlabel('Jam (hr)')
+ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
+ax.legend(title='Kategori Jam')
+st.pyplot(fig)
 
-    # Skor RFM
-    rfm_df['RFM_score'] = (rfm_df['recency'].rank(ascending=False) * 0.15 +
-                           rfm_df['frequency'].rank(ascending=True) * 0.28 +
-                           rfm_df['monetary'].rank(ascending=True) * 0.57) * 0.05
+# Analisis RFM
+st.subheader("Analisis RFM")
+data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
+rfm_df = data_bicyle.groupby('dteday').agg({
+    'instant': 'count',  # Frequency (jumlah hari dengan penyewaan)
+    'cnt': 'sum'  # Monetary (total penyewaan sepeda)
+}).reset_index()
 
-    rfm_df['customer_segment'] = np.where(
-        rfm_df['RFM_score'] > 4.5, "Top days", np.where(
-            rfm_df['RFM_score'] > 4, "High activity days", np.where(
-                rfm_df['RFM_score'] > 3, "Medium activity days", np.where(
-                    rfm_df['RFM_score'] > 1.6, 'Low activity days', 'Inactive days'))))
+rfm_df['recency'] = (data_bicyle['dteday'].max() - rfm_df['dteday']).dt.days
+rfm_df.rename(columns={
+    'instant': 'frequency',
+    'cnt': 'monetary'
+}, inplace=True)
 
-    # Visualisasi RFM
-    segment_counts = rfm_df['customer_segment'].value_counts().reset_index()
-    segment_counts.columns = ['customer_segment', 'count']
+# Hitung RFM Score
+rfm_df['RFM_score'] = (0.15 * rfm_df['r_rank_norm'] + 0.28 * rfm_df['f_rank_norm'] + 0.57 * rfm_df['m_rank_norm']) * 0.05
+rfm_df = rfm_df.round(2)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.barplot(x='count', y='customer_segment', data=segment_counts.sort_values(by='count', ascending=False), ax=ax)
-    ax.set_title("Distribusi Segmentasi RFM")
-    ax.set_xlabel("Jumlah Hari")
-    ax.set_ylabel("Kategori Aktivitas")
-    st.pyplot(fig)
+# Segmentasi berdasarkan skor RFM
+rfm_df['customer_segment'] = np.where(
+    rfm_df['RFM_score'] > 4.5, "Top days", np.where(
+        rfm_df['RFM_score'] > 4, "High activity days", np.where(
+            rfm_df['RFM_score'] > 3, "Medium activity days", np.where(
+                rfm_df['RFM_score'] > 1.6, 'Low activity days', 'Inactive days'))))
 
-    # Analisis Cluster
-    st.subheader("📌 Analisis Cluster")
-    
-    bins_temp = [0, 0.25, 0.5, 0.75, 1.0]
-    labels_temp = ['Low', 'Medium', 'High', 'Very High']
-    data_bicyle['temp_bin'] = pd.cut(data_bicyle['temp'], bins=bins_temp, labels=labels_temp)
+# Visualisasi segmentasi
+segment_counts = rfm_df['customer_segment'].value_counts().reset_index()
+segment_counts.columns = ['customer_segment', 'count']
 
-    bins_cnt = [0, 100, 200, 1000]
-    labels_cnt = ['Low', 'Medium', 'High']
-    data_bicyle['cnt_bin'] = pd.cut(data_bicyle['cnt'], bins=bins_cnt, labels=labels_cnt)
+fig, ax = plt.subplots(figsize=(10, 5))
+colors = ["#72BCD4", "#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-    sns.countplot(x='temp_bin', data=data_bicyle, order=labels_temp, palette='viridis', ax=axes[0])
-    axes[0].set_title('Distribusi Suhu (Temperature Bins)')
+sns.barplot(
+    x='count',
+    y='customer_segment',
+    data=segment_counts.sort_values(by='count', ascending=False),
+    palette=colors,
+    ax=ax
+)
+ax.set_title("Number of Days in Each Activity Segment", fontsize=15)
+ax.set_ylabel(None)
+ax.set_xlabel("Number of Days")
+ax.tick_params(axis='y', labelsize=12)
+st.pyplot(fig)
 
-    sns.scatterplot(x='temp', y='cnt', data=data_bicyle, hue='temp_bin', palette='viridis', ax=axes[1])
-    axes[1].set_title('Scatter Plot Suhu vs Penyewaan')
+# Tampilkan hasil RFM
+st.write("Hasil RFM:")
+st.write(rfm_df.head(20))
 
-    st.pyplot(fig)
-
-else:
-    st.warning("Silakan unggah file CSV untuk memulai analisis.")
+# Conclusion
+st.subheader("Kesimpulan")
+st.write("""
+- **Pertanyaan 1**: Berdasarkan analisis, terdapat hubungan positif antara suhu dan jumlah penyewaan sepeda. Model prediktif dapat dibangun menggunakan variabel cuaca, suhu, dan status hari kerja untuk memprediksi jumlah penyewaan sepeda pada jam-jam tertentu.
+- **Pertanyaan 2**: Pola penyewaan sepeda menunjukkan dua periode puncak dalam sehari, yaitu pagi dan sore hari. Suhu yang nyaman juga memengaruhi peningkatan jumlah penyewaan.
+""")
