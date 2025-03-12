@@ -1,6 +1,6 @@
-pandas
-numpy
-matplotlib.pyplot
-seaborn
-streamlit
-gdown
+pandas==1.5.3
+numpy==1.23.0
+matplotlib==3.6.2
+seaborn==0.12.2
+gdown==4.6.0
+streamlit==1.12.0
