@@ -90,21 +90,30 @@ ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
 ax.legend(title='Kategori Jam')
 st.pyplot(fig)
 
-# Analisis RFM
-st.subheader("Analisis RFM")
-data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
-rfm_df = data_bicyle.groupby('dteday').agg({
+# Judul Aplikasi
+st.title("Analisis RFM untuk Penyewaan Sepeda")
+
+# Load Data
+data_bicycle = pd.read_csv("data.csv")  # Pastikan dataset sudah di-load
+data_bicycle['dteday'] = pd.to_datetime(data_bicycle['dteday'])
+
+# Hitung RFM
+rfm_df = data_bicycle.groupby('dteday').agg({
     'instant': 'count',  # Frequency (jumlah hari dengan penyewaan)
     'cnt': 'sum'  # Monetary (total penyewaan sepeda)
 }).reset_index()
 
-rfm_df['recency'] = (data_bicyle['dteday'].max() - rfm_df['dteday']).dt.days
-rfm_df.rename(columns={
-    'instant': 'frequency',
-    'cnt': 'monetary'
-}, inplace=True)
+rfm_df['recency'] = (data_bicycle['dteday'].max() - rfm_df['dteday']).dt.days
+rfm_df.rename(columns={'instant': 'frequency', 'cnt': 'monetary'}, inplace=True)
 
 # Hitung RFM Score
+rfm_df['r_rank'] = rfm_df['recency'].rank(ascending=False)
+rfm_df['r_rank_norm'] = (rfm_df['r_rank'] / rfm_df['r_rank'].max()) * 100
+rfm_df['f_rank'] = rfm_df['frequency'].rank(ascending=True)
+rfm_df['f_rank_norm'] = (rfm_df['f_rank'] / rfm_df['f_rank'].max()) * 100
+rfm_df['m_rank'] = rfm_df['monetary'].rank(ascending=True)
+rfm_df['m_rank_norm'] = (rfm_df['m_rank'] / rfm_df['m_rank'].max()) * 100
+
 rfm_df['RFM_score'] = (0.15 * rfm_df['r_rank_norm'] + 0.28 * rfm_df['f_rank_norm'] + 0.57 * rfm_df['m_rank_norm']) * 0.05
 rfm_df = rfm_df.round(2)
 
@@ -115,7 +124,8 @@ rfm_df['customer_segment'] = np.where(
             rfm_df['RFM_score'] > 3, "Medium activity days", np.where(
                 rfm_df['RFM_score'] > 1.6, 'Low activity days', 'Inactive days'))))
 
-# Visualisasi segmentasi
+# Visualisasi Segmentasi
+st.subheader("Segmentasi Aktivitas Berdasarkan RFM")
 segment_counts = rfm_df['customer_segment'].value_counts().reset_index()
 segment_counts.columns = ['customer_segment', 'count']
 
@@ -135,13 +145,58 @@ ax.set_xlabel("Number of Days")
 ax.tick_params(axis='y', labelsize=12)
 st.pyplot(fig)
 
-# Tampilkan hasil RFM
-st.write("Hasil RFM:")
+# Tampilkan Hasil RFM
+st.subheader("Hasil RFM")
 st.write(rfm_df.head(20))
 
-# Conclusion
-st.subheader("Kesimpulan")
-st.write("""
-- **Pertanyaan 1**: Berdasarkan analisis, terdapat hubungan positif antara suhu dan jumlah penyewaan sepeda. Model prediktif dapat dibangun menggunakan variabel cuaca, suhu, dan status hari kerja untuk memprediksi jumlah penyewaan sepeda pada jam-jam tertentu.
-- **Pertanyaan 2**: Pola penyewaan sepeda menunjukkan dua periode puncak dalam sehari, yaitu pagi dan sore hari. Suhu yang nyaman juga memengaruhi peningkatan jumlah penyewaan.
-""")
+# Judul Aplikasi
+st.title("Analisis Cluster untuk Penyewaan Sepeda")
+
+# Load Data
+data_bicycle = pd.read_csv("data.csv")  # Pastikan dataset sudah di-load
+
+# Binning pada kolom 'temp'
+bins_temp = [0, 0.25, 0.5, 0.75, 1.0]
+labels_temp = ['Low', 'Medium', 'High', 'Very High']
+data_bicycle['temp_bin'] = pd.cut(data_bicycle['temp'], bins=bins_temp, labels=labels_temp)
+
+# Binning pada kolom 'cnt'
+bins_cnt = [0, 100, 200, 1000]
+labels_cnt = ['Low', 'Medium', 'High']
+data_bicycle['cnt_bin'] = pd.cut(data_bicycle['cnt'], bins=bins_cnt, labels=labels_cnt)
+
+# Visualisasi Binning pada 'temp'
+st.subheader("Distribusi Binning Suhu")
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.countplot(x='temp_bin', data=data_bicycle, order=labels_temp, palette='viridis', ax=ax)
+ax.set_title('Distribution of Temperature Bins')
+ax.set_xlabel('Temperature Bin')
+ax.set_ylabel('Count')
+st.pyplot(fig)
+
+# Visualisasi Scatter Plot Suhu vs Total Rentals
+st.subheader("Scatter Plot Suhu vs Total Rentals")
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.scatterplot(x='temp', y='cnt', data=data_bicycle, hue='temp_bin', palette='viridis', ax=ax)
+ax.set_title('Scatter Plot of Temperature vs Total Rentals')
+ax.set_xlabel('Temperature')
+ax.set_ylabel('Total Rentals')
+st.pyplot(fig)
+
+# Visualisasi Binning pada 'cnt'
+st.subheader("Distribusi Binning Total Rentals")
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.countplot(x='cnt_bin', data=data_bicycle, order=labels_cnt, palette='magma', ax=ax)
+ax.set_title('Distribution of Total Rentals (cnt) Bins')
+ax.set_xlabel('Total Rentals Bin')
+ax.set_ylabel('Count')
+st.pyplot(fig)
+
+# Visualisasi Scatter Plot Total Rentals vs Temperature
+st.subheader("Scatter Plot Total Rentals vs Temperature")
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.scatterplot(x='cnt', y='temp', data=data_bicycle, hue='cnt_bin', palette='magma', ax=ax)
+ax.set_title('Scatter Plot of Total Rentals vs Temperature')
+ax.set_xlabel('Total Rentals')
+ax.set_ylabel('Temperature')
+st.pyplot(fig)
