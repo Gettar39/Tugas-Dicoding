@@ -4,3 +4,4 @@ matplotlib.pyplot
 seaborn
 gdown
 streamlit
+Fix dependencies and update requirements.txt
