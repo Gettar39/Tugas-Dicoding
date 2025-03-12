@@ -1,7 +1,7 @@
+pip==25.0.1
 pandas
 numpy
 matplotlib.pyplot
 seaborn
 gdown
 streamlit
-Fix dependencies and update requirements.txt
