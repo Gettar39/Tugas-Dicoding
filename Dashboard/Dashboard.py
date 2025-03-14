@@ -37,9 +37,6 @@ st.write(data_bicyle.duplicated().sum())
 # Exploratory Data Analysis (EDA)
 st.subheader("Exploratory Data Analysis (EDA)")
 
-# Load data
-data_bicyle = pd.read_csv('hour.csv')
-
 # Convert 'dteday' to datetime
 data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
 
