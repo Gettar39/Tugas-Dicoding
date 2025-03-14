@@ -165,23 +165,31 @@ bins_cnt = [0, 100, 200, 1000]
 labels_cnt = ['Low', 'Medium', 'High']
 data_bicycle['cnt_bin'] = pd.cut(data_bicycle['cnt'], bins=bins_cnt, labels=labels_cnt)
 
+# Pilihan visualisasi
+visualization_option = st.selectbox(
+    "Pilih jenis visualisasi:",
+    ("Distribusi Binning Suhu", "Scatter Plot Suhu vs Total Rentals")
+)
+
 # Visualisasi Binning pada 'temp'
-st.subheader("Distribusi Binning Suhu")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(x='temp_bin', data=data_bicycle, order=labels_temp, palette='viridis', ax=ax)
-ax.set_title('Distribution of Temperature Bins')
-ax.set_xlabel('Temperature Bin')
-ax.set_ylabel('Count')
-st.pyplot(fig)
+if visualization_option == "Distribusi Binning Suhu":
+    st.subheader("Distribusi Binning Suhu")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.countplot(x='temp_bin', data=data_bicycle, order=labels_temp, palette='viridis', ax=ax)
+    ax.set_title('Distribution of Temperature Bins')
+    ax.set_xlabel('Temperature Bin')
+    ax.set_ylabel('Count')
+    st.pyplot(fig)
 
 # Visualisasi Scatter Plot Suhu vs Total Rentals
-st.subheader("Scatter Plot Suhu vs Total Rentals")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.scatterplot(x='temp', y='cnt', data=data_bicycle, hue='temp_bin', palette='viridis', ax=ax)
-ax.set_title('Scatter Plot of Temperature vs Total Rentals')
-ax.set_xlabel('Temperature')
-ax.set_ylabel('Total Rentals')
-st.pyplot(fig)
+elif visualization_option == "Scatter Plot Suhu vs Total Rentals":
+    st.subheader("Scatter Plot Suhu vs Total Rentals")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.scatterplot(x='temp', y='cnt', data=data_bicycle, hue='temp_bin', palette='viridis', ax=ax)
+    ax.set_title('Scatter Plot of Temperature vs Total Rentals')
+    ax.set_xlabel('Temperature')
+    ax.set_ylabel('Total Rentals')
+    st.pyplot(fig)
 
 # Visualisasi Binning pada 'cnt'
 st.subheader("Distribusi Binning Total Rentals")
