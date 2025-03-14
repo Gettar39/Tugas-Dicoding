@@ -245,20 +245,28 @@ elif visualization_option == "Scatter Plot Suhu vs Total Rentals":
     ax.set_ylabel('Total Rentals')
     st.pyplot(fig)
 
+# Pilihan visualisasi
+visualization_option = st.selectbox(
+    "Pilih jenis visualisasi:",
+    ("Distribusi Binning Total Rentals", "Scatter Plot Total Rentals vs Temperature")
+)
+
 # Visualisasi Binning pada 'cnt'
-st.subheader("Distribusi Binning Total Rentals")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(x='cnt_bin', data=data_bicycle, order=labels_cnt, palette='magma', ax=ax)
-ax.set_title('Distribution of Total Rentals (cnt) Bins')
-ax.set_xlabel('Total Rentals Bin')
-ax.set_ylabel('Count')
-st.pyplot(fig)
+if visualization_option == "Distribusi Binning Total Rentals":
+    st.subheader("Distribusi Binning Total Rentals")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.countplot(x='cnt_bin', data=data_bicycle, order=labels_cnt, palette='magma', ax=ax)
+    ax.set_title('Distribution of Total Rentals (cnt) Bins')
+    ax.set_xlabel('Total Rentals Bin')
+    ax.set_ylabel('Count')
+    st.pyplot(fig)
 
 # Visualisasi Scatter Plot Total Rentals vs Temperature
-st.subheader("Scatter Plot Total Rentals vs Temperature")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.scatterplot(x='cnt', y='temp', data=data_bicycle, hue='cnt_bin', palette='magma', ax=ax)
-ax.set_title('Scatter Plot of Total Rentals vs Temperature')
-ax.set_xlabel('Total Rentals')
-ax.set_ylabel('Temperature')
-st.pyplot(fig)
+elif visualization_option == "Scatter Plot Total Rentals vs Temperature":
+    st.subheader("Scatter Plot Total Rentals vs Temperature")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.scatterplot(x='cnt', y='temp', data=data_bicycle, hue='cnt_bin', palette='magma', ax=ax)
+    ax.set_title('Scatter Plot of Total Rentals vs Temperature')
+    ax.set_xlabel('Total Rentals')
+    ax.set_ylabel('Temperature')
+    st.pyplot(fig)
