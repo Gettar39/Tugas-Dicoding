@@ -144,64 +144,6 @@ ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
 ax.legend(title='Kategori Jam')
 st.pyplot(fig)
 
-# Judul Aplikasi
-st.title("Analisis RFM untuk Penyewaan Sepeda")
-
-# Load Data
-data_bicycle = pd.read_csv("data.csv")  # Pastikan dataset sudah di-load
-data_bicycle['dteday'] = pd.to_datetime(data_bicycle['dteday'])
-
-# Hitung RFM
-rfm_df = data_bicycle.groupby('dteday').agg({
-    'instant': 'count',  # Frequency (jumlah hari dengan penyewaan)
-    'cnt': 'sum'  # Monetary (total penyewaan sepeda)
-}).reset_index()
-
-rfm_df['recency'] = (data_bicycle['dteday'].max() - rfm_df['dteday']).dt.days
-rfm_df.rename(columns={'instant': 'frequency', 'cnt': 'monetary'}, inplace=True)
-
-# Hitung RFM Score
-rfm_df['r_rank'] = rfm_df['recency'].rank(ascending=False)
-rfm_df['r_rank_norm'] = (rfm_df['r_rank'] / rfm_df['r_rank'].max()) * 100
-rfm_df['f_rank'] = rfm_df['frequency'].rank(ascending=True)
-rfm_df['f_rank_norm'] = (rfm_df['f_rank'] / rfm_df['f_rank'].max()) * 100
-rfm_df['m_rank'] = rfm_df['monetary'].rank(ascending=True)
-rfm_df['m_rank_norm'] = (rfm_df['m_rank'] / rfm_df['m_rank'].max()) * 100
-
-rfm_df['RFM_score'] = (0.15 * rfm_df['r_rank_norm'] + 0.28 * rfm_df['f_rank_norm'] + 0.57 * rfm_df['m_rank_norm']) * 0.05
-rfm_df = rfm_df.round(2)
-
-# Segmentasi berdasarkan skor RFM
-rfm_df['customer_segment'] = np.where(
-    rfm_df['RFM_score'] > 4.5, "Top days", np.where(
-        rfm_df['RFM_score'] > 4, "High activity days", np.where(
-            rfm_df['RFM_score'] > 3, "Medium activity days", np.where(
-                rfm_df['RFM_score'] > 1.6, 'Low activity days', 'Inactive days'))))
-
-# Visualisasi Segmentasi
-st.subheader("Segmentasi Aktivitas Berdasarkan RFM")
-segment_counts = rfm_df['customer_segment'].value_counts().reset_index()
-segment_counts.columns = ['customer_segment', 'count']
-
-fig, ax = plt.subplots(figsize=(10, 5))
-colors = ["#72BCD4", "#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
-
-sns.barplot(
-    x='count',
-    y='customer_segment',
-    data=segment_counts.sort_values(by='count', ascending=False),
-    palette=colors,
-    ax=ax
-)
-ax.set_title("Number of Days in Each Activity Segment", fontsize=15)
-ax.set_ylabel(None)
-ax.set_xlabel("Number of Days")
-ax.tick_params(axis='y', labelsize=12)
-st.pyplot(fig)
-
-# Tampilkan Hasil RFM
-st.subheader("Hasil RFM")
-st.write(rfm_df.head(20))
 
 # Judul Aplikasi
 st.title("Analisis Cluster untuk Penyewaan Sepeda")
