@@ -93,7 +93,7 @@ st.pyplot(fig)
 st.write("### Data yang Difilter")
 st.dataframe(filtered_data)
 
- Convert 'dteday' to datetime
+#Convert 'dteday' to datetime
 data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
 
 # Sidebar for date range selection
