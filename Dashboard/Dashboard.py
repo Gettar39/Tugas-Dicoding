@@ -42,8 +42,8 @@ data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
 
 # Sidebar for date range selection
 st.sidebar.header('Filter Data Weather')
-start_date = st.sidebar.date_input('Pilih Tanggal Awal', data_bicyle['dteday'].min())
-end_date = st.sidebar.date_input('Pilih Tanggal Akhir', data_bicyle['dteday'].max())
+start_date = st.sidebar.date_input('Pilih Tanggal Awal Cuaca', data_bicyle['dteday'].min())
+end_date = st.sidebar.date_input('Pilih Tanggal Akhir Cuaca', data_bicyle['dteday'].max())
 
 # Filter data based on selected date range
 filtered_data = data_bicyle[(data_bicyle['dteday'] >= pd.to_datetime(start_date)) & 
@@ -93,14 +93,32 @@ st.pyplot(fig)
 st.write("### Data yang Difilter")
 st.dataframe(filtered_data)
 
+ Convert 'dteday' to datetime
+data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
+
+# Sidebar for date range selection
+st.sidebar.header('Filter Data Hari Kerja')
+start_date = st.sidebar.date_input('Pilih Tanggal Awal Hari Kerja', data_bicyle['dteday'].min(), key='start_date_workingday')
+end_date = st.sidebar.date_input('Pilih Tanggal Akhir Hari Kerja', data_bicyle['dteday'].max(), key='end_date_workingday')
+
+# Filter data based on selected date range
+filtered_data = data_bicyle[(data_bicyle['dteday'] >= pd.to_datetime(start_date)) & 
+                            (data_bicyle['dteday'] <= pd.to_datetime(end_date))]
+
 # Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja
-st.write("### Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja")
+st.write(f"### Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja dari {start_date} hingga {end_date}")
+
+# Plot
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='workingday', y='cnt', data=data_bicyle, errorbar=None, palette='gist_ncar', ax=ax)
-ax.set_title('Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja')
+sns.barplot(x='workingday', y='cnt', data=filtered_data, errorbar=None, palette='gist_ncar', ax=ax)
+ax.set_title(f'Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja dari {start_date} hingga {end_date}')
 ax.set_xlabel('Hari Kerja (0: Bukan Hari Kerja, 1: Hari Kerja)')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
 st.pyplot(fig)
+
+# Tampilkan data yang difilter
+st.write("### Data yang Difilter")
+st.dataframe(filtered_data)
 
 # Kategorisasi Jam Berdasarkan Pola Penyewaan Sepeda
 st.write("### Kategorisasi Jam Berdasarkan Pola Penyewaan Sepeda")
