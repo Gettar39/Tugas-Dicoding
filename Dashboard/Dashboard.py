@@ -41,7 +41,7 @@ st.subheader("Exploratory Data Analysis (EDA)")
 data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
 
 # Sidebar for date range selection
-st.sidebar.header('Filter Data')
+st.sidebar.header('Filter Data Weather')
 start_date = st.sidebar.date_input('Pilih Tanggal Awal', data_bicyle['dteday'].min())
 end_date = st.sidebar.date_input('Pilih Tanggal Akhir', data_bicyle['dteday'].max())
 
@@ -65,11 +65,9 @@ st.pyplot(fig)
 st.write("### Data yang Difilter")
 st.dataframe(filtered_data)
 
-# Convert 'dteday' to datetime
-data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
 
 # Sidebar for date range selection
-st.sidebar.header('Filter Data')
+st.sidebar.header('Filter Data Suhu')
 start_date = st.sidebar.date_input('Pilih Tanggal Awal', data_bicyle['dteday'].min())
 end_date = st.sidebar.date_input('Pilih Tanggal Akhir', data_bicyle['dteday'].max())
 
