@@ -68,8 +68,8 @@ st.dataframe(filtered_data)
 
 # Sidebar for date range selection
 st.sidebar.header('Filter Data Suhu')
-start_date = st.sidebar.date_input('Pilih Tanggal Awal', data_bicyle['dteday'].min())
-end_date = st.sidebar.date_input('Pilih Tanggal Akhir', data_bicyle['dteday'].max())
+start_date = st.sidebar.date_input('Pilih Tanggal Awal Suhu', data_bicyle['dteday'].min())
+end_date = st.sidebar.date_input('Pilih Tanggal Akhir Suhu', data_bicyle['dteday'].max())
 
 # Filter data based on selected date range
 filtered_data = data_bicyle[(data_bicyle['dteday'] >= pd.to_datetime(start_date)) & 
