@@ -171,12 +171,58 @@ visualization_option = st.selectbox(
     ("Distribusi Binning Suhu", "Scatter Plot Suhu vs Total Rentals")
 )
 
+# Judul aplikasi
+st.title("Dashboard Interaktif Bicycle Rentals")
+
+# Load dataset (pastikan dataset sudah di-load sebelumnya)
+# Contoh: data_bicycle = pd.read_csv('bicycle_data.csv')
+# Pastikan kolom 'dteday' (tanggal) dan 'season' ada di dataset
+
+# Konversi kolom tanggal ke format datetime (jika belum)
+data_bicycle['dteday'] = pd.to_datetime(data_bicycle['dteday'])
+
+# Sidebar untuk filter interaktif
+st.sidebar.header("Filter Data")
+
+# Filter berdasarkan tanggal
+min_date = data_bicycle['dteday'].min()
+max_date = data_bicycle['dteday'].max()
+selected_date_range = st.sidebar.date_input(
+    "Pilih Rentang Tanggal:",
+    [min_date, max_date],
+    min_value=min_date,
+    max_value=max_date
+)
+
+# Filter berdasarkan musim
+season_mapping = {1: "Spring", 2: "Summer", 3: "Fall", 4: "Winter"}
+selected_season = st.sidebar.selectbox(
+    "Pilih Musim:",
+    options=list(season_mapping.values())
+)
+
+# Filter data berdasarkan pilihan pengguna
+filtered_data = data_bicycle[
+    (data_bicycle['dteday'] >= pd.to_datetime(selected_date_range[0])) &
+    (data_bicycle['dteday'] <= pd.to_datetime(selected_date_range[1])) &
+    (data_bicycle['season'] == list(season_mapping.keys())[list(season_mapping.values()).index(selected_season)])
+]
+
+# Tampilkan visualisasi berdasarkan data yang sudah difilter
+st.subheader("Visualisasi Data yang Difilter")
+
+# Pilihan visualisasi
+visualization_option = st.selectbox(
+    "Pilih jenis visualisasi:",
+    ("Distribusi Binning Suhu", "Scatter Plot Suhu vs Total Rentals")
+)
+
 # Visualisasi Binning pada 'temp'
 if visualization_option == "Distribusi Binning Suhu":
     st.subheader("Distribusi Binning Suhu")
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.countplot(x='temp_bin', data=data_bicycle, order=labels_temp, palette='viridis', ax=ax)
-    ax.set_title('Distribution of Temperature Bins')
+    sns.countplot(x='temp_bin', data=filtered_data, order=labels_temp, palette='viridis', ax=ax)
+    ax.set_title('Distribution of Temperature Bins (Filtered)')
     ax.set_xlabel('Temperature Bin')
     ax.set_ylabel('Count')
     st.pyplot(fig)
@@ -185,12 +231,14 @@ if visualization_option == "Distribusi Binning Suhu":
 elif visualization_option == "Scatter Plot Suhu vs Total Rentals":
     st.subheader("Scatter Plot Suhu vs Total Rentals")
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.scatterplot(x='temp', y='cnt', data=data_bicycle, hue='temp_bin', palette='viridis', ax=ax)
-    ax.set_title('Scatter Plot of Temperature vs Total Rentals')
+    sns.scatterplot(x='temp', y='cnt', data=filtered_data, hue='temp_bin', palette='viridis', ax=ax)
+    ax.set_title('Scatter Plot of Temperature vs Total Rentals (Filtered)')
     ax.set_xlabel('Temperature')
     ax.set_ylabel('Total Rentals')
     st.pyplot(fig)
 
+# Tampilkan jumlah data yang difilter
+st.sidebar.write(f"Jumlah Data yang Difilter: {len(filtered_data)}")
 # Visualisasi Binning pada 'cnt'
 st.subheader("Distribusi Binning Total Rentals")
 fig, ax = plt.subplots(figsize=(10, 5))
