@@ -37,12 +37,25 @@ st.write(data_bicyle.duplicated().sum())
 # Exploratory Data Analysis (EDA)
 st.subheader("Exploratory Data Analysis (EDA)")
 
+# Load data
+data_bicyle = pd.read_csv('hour.csv')
+
+# Convert 'dteday' to datetime
+data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
+
+# Sidebar for date selection
+st.sidebar.header('Filter Data')
+selected_date = st.sidebar.date_input('Pilih Tanggal', data_bicyle['dteday'].min())
+
+# Filter data based on selected date
+filtered_data = data_bicyle[data_bicyle['dteday'] == pd.to_datetime(selected_date)]
+
 # Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca
-st.write("### Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca")
-data_bicyle['Weather_category'] = pd.cut(data_bicyle['weathersit'], bins=4, labels=['Clear','Mist','Light Snow','Heavy Rain'])
+st.write("### Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca pada Tanggal", selected_date)
+filtered_data['Weather_category'] = pd.cut(filtered_data['weathersit'], bins=4, labels=['Clear','Mist','Light Snow','Heavy Rain'])
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='Weather_category', y='cnt', data=data_bicyle, errorbar=None, palette='viridis', ax=ax)
-ax.set_title('Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca')
+sns.barplot(x='Weather_category', y='cnt', data=filtered_data, errorbar=None, palette='viridis', ax=ax)
+ax.set_title(f'Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca pada Tanggal {selected_date}')
 ax.set_xlabel('Kondisi Cuaca')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
 st.pyplot(fig)
