@@ -65,15 +65,35 @@ st.pyplot(fig)
 st.write("### Data yang Difilter")
 st.dataframe(filtered_data)
 
+# Convert 'dteday' to datetime
+data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
+
+# Sidebar for date range selection
+st.sidebar.header('Filter Data')
+start_date = st.sidebar.date_input('Pilih Tanggal Awal', data_bicyle['dteday'].min())
+end_date = st.sidebar.date_input('Pilih Tanggal Akhir', data_bicyle['dteday'].max())
+
+# Filter data based on selected date range
+filtered_data = data_bicyle[(data_bicyle['dteday'] >= pd.to_datetime(start_date)) & 
+                            (data_bicyle['dteday'] <= pd.to_datetime(end_date))]
+
 # Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Suhu
-st.write("### Jumlah Sepeda yang Disewa Berdasarkan Suhu")
-data_bicyle['temp_category'] = pd.cut(data_bicyle['temp'], bins=5, labels=['Sangat Dingin', 'Dingin', 'Sedang', 'Hangat', 'Panas'])
+st.write(f"### Jumlah Sepeda yang Disewa Berdasarkan Suhu dari {start_date} hingga {end_date}")
+
+# Kategorisasi suhu
+filtered_data['temp_category'] = pd.cut(filtered_data['temp'], bins=5, labels=['Sangat Dingin', 'Dingin', 'Sedang', 'Hangat', 'Panas'])
+
+# Plot
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='temp_category', y='cnt', data=data_bicyle, errorbar=None, palette='coolwarm', ax=ax)
-ax.set_title('Jumlah Sepeda yang Disewa Berdasarkan Suhu')
+sns.barplot(x='temp_category', y='cnt', data=filtered_data, errorbar=None, palette='coolwarm', ax=ax)
+ax.set_title(f'Jumlah Sepeda yang Disewa Berdasarkan Suhu dari {start_date} hingga {end_date}')
 ax.set_xlabel('Kategori Suhu')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
 st.pyplot(fig)
+
+# Tampilkan data yang difilter
+st.write("### Data yang Difilter")
+st.dataframe(filtered_data)
 
 # Visualisasi Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja
 st.write("### Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja")
