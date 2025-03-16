@@ -55,7 +55,7 @@ filtered_data['Weather_category'] = pd.cut(filtered_data['weathersit'], bins=4, 
 
 # Plot
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='Weather_category', y='cnt', data=filtered_data, errorbar=None, palette='viridis', ax=ax)
+sns.barplot(x='Weather_category', y='cnt', data=filtered_data, errorbar=None, ax=ax)
 ax.set_title(f'Jumlah Sepeda yang Disewa Berdasarkan Kondisi Cuaca dari {start_date} hingga {end_date}')
 ax.set_xlabel('Kondisi Cuaca')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
@@ -64,7 +64,6 @@ st.pyplot(fig)
 # Tampilkan data yang difilter
 st.write("### Data yang Difilter")
 st.dataframe(filtered_data)
-
 
 # Sidebar for date range selection
 st.sidebar.header('Filter Data Suhu')
@@ -83,7 +82,7 @@ filtered_data['temp_category'] = pd.cut(filtered_data['temp'], bins=5, labels=['
 
 # Plot
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='temp_category', y='cnt', data=filtered_data, errorbar=None, palette='coolwarm', ax=ax)
+sns.barplot(x='temp_category', y='cnt', data=filtered_data, errorbar=None, ax=ax)
 ax.set_title(f'Jumlah Sepeda yang Disewa Berdasarkan Suhu dari {start_date} hingga {end_date}')
 ax.set_xlabel('Kategori Suhu')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
@@ -93,7 +92,7 @@ st.pyplot(fig)
 st.write("### Data yang Difilter")
 st.dataframe(filtered_data)
 
-#Convert 'dteday' to datetime
+# Convert 'dteday' to datetime
 data_bicyle['dteday'] = pd.to_datetime(data_bicyle['dteday'])
 
 # Sidebar for date range selection
@@ -110,7 +109,7 @@ st.write(f"### Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja dari {start_date
 
 # Plot
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='workingday', y='cnt', data=filtered_data, errorbar=None, palette='gist_ncar', ax=ax)
+sns.barplot(x='workingday', y='cnt', data=filtered_data, errorbar=None, ax=ax)
 ax.set_title(f'Jumlah Sepeda yang Disewa Berdasarkan Hari Kerja dari {start_date} hingga {end_date}')
 ax.set_xlabel('Hari Kerja (0: Bukan Hari Kerja, 1: Hari Kerja)')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
@@ -137,13 +136,12 @@ def categorize_hour(cnt):
 avg_cnt_per_hour['kategori_jam'] = avg_cnt_per_hour['cnt'].apply(categorize_hour)
 
 fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(x='hr', y='cnt', hue='kategori_jam', data=avg_cnt_per_hour, palette='viridis', ax=ax)
+sns.barplot(x='hr', y='cnt', hue='kategori_jam', data=avg_cnt_per_hour, ax=ax)
 ax.set_title('Kategorisasi Jam Berdasarkan Pola Penyewaan Sepeda')
 ax.set_xlabel('Jam (hr)')
 ax.set_ylabel('Rata-rata Jumlah Sepeda yang Disewa (cnt)')
 ax.legend(title='Kategori Jam')
 st.pyplot(fig)
-
 
 # Judul Aplikasi
 st.title("Analisis Cluster untuk Penyewaan Sepeda")
@@ -171,7 +169,7 @@ visualization_option = st.selectbox(
 if visualization_option == "Distribusi Binning Suhu":
     st.subheader("Distribusi Binning Suhu")
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.countplot(x='temp_bin', data=data_bicycle, order=labels_temp, palette='viridis', ax=ax)
+    sns.countplot(x='temp_bin', data=data_bicycle, order=labels_temp, ax=ax)
     ax.set_title('Distribution of Temperature Bins')
     ax.set_xlabel('Temperature Bin')
     ax.set_ylabel('Count')
@@ -197,7 +195,7 @@ visualization_option = st.selectbox(
 if visualization_option == "Distribusi Binning Total Rentals":
     st.subheader("Distribusi Binning Total Rentals")
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.countplot(x='cnt_bin', data=data_bicycle, order=labels_cnt, palette='magma', ax=ax)
+    sns.countplot(x='cnt_bin', data=data_bicycle, order=labels_cnt, ax=ax)
     ax.set_title('Distribution of Total Rentals (cnt) Bins')
     ax.set_xlabel('Total Rentals Bin')
     ax.set_ylabel('Count')
